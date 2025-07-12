@@ -1,0 +1,43 @@
+diff --git a/Configurations/windows-makefile.tmpl b/Configurations/windows-makefile.tmpl
+--- Configurations/windows-makefile.tmpl
++++ Configurations/windows-makefile.tmpl
+@@ -214,8 +214,9 @@
+                           (file_name_is_absolute($config{openssldir}) ?
+                                canonpath($config{openssldir})
+                                : catdir($prefix, $config{openssldir}))
+                           : canonpath("$win_commonroot\\SSL");
++                  our $openssldir_macro = substr $openssldir, length($prefix)+1;
+                   our ($openssldir_dev, $openssldir_dir, $openssldir_file) =
+                       splitpath($openssldir, 1);
+                   $openssldir_dev -}
+ OPENSSLDIR_dir={- canonpath($openssldir_dir) -}
+@@ -229,12 +230,14 @@
+                   our $modulesdir_dev = $modulesprefix_dev;
+                   our $modulesdir_dir =
+                       catdir($modulesprefix_dir, "ossl-modules");
+                   our $modulesdir = catpath($modulesdir_dev, $modulesdir_dir);
++                  our $modulesdir_macro = substr $modulesdir, length($prefix)+1;
+                   our $enginesdir_dev = $modulesprefix_dev;
+                   our $enginesdir_dir =
+                       catdir($modulesprefix_dir, "engines-$sover_dirname");
+                   our $enginesdir = catpath($enginesdir_dev, $enginesdir_dir);
++                  our $enginesdir_macro = substr $enginesdir, length($prefix)+1;
+                   $modulesdir_dev -}
+ MODULESDIR_dir={- canonpath($modulesdir_dir) -}
+ ENGINESDIR_dev={- $enginesdir_dev -}
+ ENGINESDIR_dir={- canonpath($enginesdir_dir) -}
+@@ -342,11 +345,11 @@
+                           @{$config{lib_cppflags}},
+                           @{$config{shared_cppflag}});
+                 join(' ', $lib_cppflags,
+                           (map { '-D'.quotify1($_) }
+-                               "OPENSSLDIR=\"$openssldir\"",
+-                               "ENGINESDIR=\"$enginesdir\"",
+-                               "MODULESDIR=\"$modulesdir\""),
++                               "OPENSSLDIR=prefix_stub_relocate(\"$openssldir_macro\")",
++                               "ENGINESDIR=prefix_stub_relocate(\"$enginesdir_macro\")",
++                               "MODULESDIR=prefix_stub_relocate(\"$modulesdir_macro\")"),
+                           '$(CNF_CPPFLAGS)', '$(CPPFLAGS)') -}
+ LIB_CFLAGS={- join(' ', $target{lib_cflags} || (),
+                         $target{shared_cflag} || (),
+                         @{$config{lib_cflags}},
